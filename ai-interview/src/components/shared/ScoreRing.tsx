@@ -9,18 +9,39 @@ interface ScoreRingProps {
   className?: string
 }
 
-export default function ScoreRing({ score, size = 120, strokeWidth = 8, color = "#8b5cf6", label, className }: ScoreRingProps) {
+export default function ScoreRing({
+  score,
+  size = 120,
+  strokeWidth = 8,
+  color = "#8b5cf6",
+  label,
+  className,
+}: ScoreRingProps) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const progress = (score / 100) * circumference
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
+    <div
+      className={`relative flex items-center justify-center ${className}`}
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={strokeWidth} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth={strokeWidth}
+        />
         <motion.circle
-          cx={size / 2} cy={size / 2} r={radius} fill="none"
-          stroke={color} strokeWidth={strokeWidth}
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
@@ -29,14 +50,18 @@ export default function ScoreRing({ score, size = 120, strokeWidth = 8, color = 
           style={{ filter: `drop-shadow(0 0 6px ${color})` }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="inset-0 absolute flex flex-col items-center justify-center">
         <motion.span
           className="text-2xl font-bold text-white"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
         >
           {score}
         </motion.span>
-        {label && <span className="text-xs text-slate-400 mt-0.5">{label}</span>}
+        {label && (
+          <span className="text-sm text-slate-400 mt-0.5">{label}</span>
+        )}
       </div>
     </div>
   )

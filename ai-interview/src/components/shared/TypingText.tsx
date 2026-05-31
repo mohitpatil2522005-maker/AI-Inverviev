@@ -9,7 +9,13 @@ interface TypingTextProps {
   cursorClassName?: string
 }
 
-export default function TypingText({ texts, speed = 80, pause = 2000, className, cursorClassName }: TypingTextProps) {
+export default function TypingText({
+  texts,
+  speed = 80,
+  pause = 2000,
+  className,
+  cursorClassName,
+}: TypingTextProps) {
   const [display, setDisplay] = useState("")
   const [textIdx, setTextIdx] = useState(0)
   const [charIdx, setCharIdx] = useState(0)

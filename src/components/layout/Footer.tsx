@@ -1,4 +1,4 @@
-import React from "react";
+﻿
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-gray-400">
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <div className="space-y-2">
-            <span className="text-sm">� 2026 AI Interview SaaS. All rights reserved.</span>
+            <span className="text-sm">© 2026 AI Interview SaaS. All rights reserved.</span>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-white">Terms</a>
               <a href="#" className="hover:text-white">Privacy</a>

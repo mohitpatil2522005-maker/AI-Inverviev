@@ -11,7 +11,15 @@ interface GlassCardProps {
   style?: React.CSSProperties
 }
 
-export default function GlassCard({ children, className, hover = false, glow = false, tilt = false, onClick, style }: GlassCardProps) {
+export default function GlassCard({
+  children,
+  className,
+  hover = false,
+  glow = false,
+  tilt = false,
+  onClick,
+  style,
+}: GlassCardProps) {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
 
@@ -48,20 +56,19 @@ export default function GlassCard({ children, className, hover = false, glow = f
         rotateX: tilt ? rotateX : 0,
         rotateY: tilt ? rotateY : 0,
         transformStyle: "preserve-3d",
-        ...style
+        ...style,
       }}
       whileHover={hover ? { y: -4, scale: 1.01 } : undefined}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className={cn(
         "glass-card",
-        hover && "cursor-pointer transition-all duration-300 hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/10",
+        hover &&
+          "hover:border-violet-500/30 hover:shadow-lg hover:shadow-violet-500/10 cursor-pointer transition-all duration-300",
         glow && "glow-border",
         className
       )}
     >
-      <div style={{ transform: "translateZ(20px)" }}>
-        {children}
-      </div>
+      <div style={{ transform: "translateZ(20px)" }}>{children}</div>
     </motion.div>
   )
 }

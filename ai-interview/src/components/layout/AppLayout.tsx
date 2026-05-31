@@ -7,11 +7,17 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 export default function AppLayout() {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-screen w-full overflow-hidden" style={{ background: "#080812" }}>
+      <div
+        className="flex h-screen w-full overflow-hidden"
+        style={{ background: "#080812" }}
+      >
         <AppSidebar />
-        <SidebarInset className="flex flex-col flex-1 min-w-0 overflow-hidden" style={{ background: "transparent" }}>
+        <SidebarInset
+          className="min-w-0 flex flex-1 flex-col overflow-hidden"
+          style={{ background: "transparent" }}
+        >
           <AppHeader />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
+          <main className="p-4 md:p-6 pb-20 md:pb-6 flex-1 overflow-y-auto">
             <Outlet />
           </main>
           <MobileBottomNav />

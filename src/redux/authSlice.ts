@@ -6,6 +6,8 @@ import api from '../lib/api';
 interface AuthState {
   user: any;
   token: string | null;
+  credits: number;
+  plan: string;
   loading: boolean;
   error: string | null;
 }
@@ -13,17 +15,44 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: null,
+  credits: 0,
+  plan: 'free',
   loading: false,
   error: null,
 };
 
+export const syncUserWithBackend = createAsyncThunk(
+  'auth/syncUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/users/sync');
+      return response.data.user;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.error || err.message);
+    }
+  }
+);
+
+export const fetchUserProfile = createAsyncThunk(
+  'auth/fetchProfile',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/users/me');
+      return response.data.user;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.error || err.message);
+    }
+  }
+);
+
 export const loginWithEmail = createAsyncThunk(
   'auth/loginWithEmail',
-  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+  async ({ email, password }: { email: string; password: string }, { dispatch, rejectWithValue }) => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       localStorage.setItem('token', token);
+      await dispatch(syncUserWithBackend());
       return { user: userCredential.user, token };
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -33,13 +62,12 @@ export const loginWithEmail = createAsyncThunk(
 
 export const signupWithEmail = createAsyncThunk(
   'auth/signupWithEmail',
-  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+  async ({ email, password }: { email: string; password: string }, { dispatch, rejectWithValue }) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
       localStorage.setItem('token', token);
-      // Optionally, call backend to create user record
-      // await api.post('/auth/signup', { email, password });
+      await dispatch(syncUserWithBackend());
       return { user: userCredential.user, token };
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -49,11 +77,12 @@ export const signupWithEmail = createAsyncThunk(
 
 export const loginWithGoogle = createAsyncThunk(
   'auth/loginWithGoogle',
-  async (_, { rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const token = await result.user.getIdToken();
       localStorage.setItem('token', token);
+      await dispatch(syncUserWithBackend());
       return { user: result.user, token };
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -81,9 +110,23 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateCreditsLocally: (state, action) => {
+      state.credits = action.payload;
+    },
+    updatePlanLocally: (state, action) => {
+      state.plan = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
+      .addCase(syncUserWithBackend.fulfilled, (state, action) => {
+        state.credits = action.payload.credits;
+        state.plan = action.payload.plan;
+      })
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.credits = action.payload.credits;
+        state.plan = action.payload.plan;
+      })
       .addCase(loginWithEmail.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -126,9 +169,11 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
+        state.credits = 0;
+        state.plan = 'free';
       });
   },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, updateCreditsLocally, updatePlanLocally } = authSlice.actions;
 export default authSlice.reducer;

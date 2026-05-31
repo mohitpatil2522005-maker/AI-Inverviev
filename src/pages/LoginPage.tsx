@@ -26,66 +26,58 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-purple-900 text-white flex items-center justify-center">
-      <div className="bg-black/50 backdrop-blur-sm rounded-xl p-8 w-full max-w-md space-y-6">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="w-full flex items-center justify-center py-10 sm:py-16">
+      <div className="max-w-md w-full bg-white/5 border border-white/10 p-6 sm:p-8 lg:p-10 rounded-3xl shadow-2xl backdrop-blur-md">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-center mb-6 sm:mb-8 text-white tracking-tight">Welcome Back</h2>
+        {error && <p className="text-red-400 text-center mb-6 text-sm sm:text-base bg-red-400/10 py-3 px-4 rounded-lg">{error}</p>}
+        
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              type="email"
-              required
+            <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">Email</label>
+            <input 
+              type="email" 
+              className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base sm:text-lg"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white"
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input
-              type="password"
-              required
+            <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">Password</label>
+            <input 
+              type="password" 
+              className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-black/40 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-base sm:text-lg"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-800/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white"
+              required
             />
           </div>
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             disabled={loading}
-            className={`w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition-transform transform hover:scale-105 ${
-              loading ? 'opacity-50' : ''
-            }`}
+            className="w-full py-3 sm:py-4 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-base sm:text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : 'Login'}
+            {loading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
-        <div className="mt-4">
-          <button
+
+        <div className="mt-6 sm:mt-8">
+          <button 
             onClick={handleGoogleLogin}
             disabled={loading}
-            className={`w-full px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-lg flex items-center justify-center transition-transform transform hover:scale-105 ${
-              loading ? 'opacity-50' : ''
-            }`}
+            className="w-full py-3 sm:py-4 px-4 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Login with Google
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-3" />
+            Continue with Google
           </button>
         </div>
-        {error && (
-          <div className="mt-4 p-2 bg-red-600/20 text-red-400 rounded-lg">
-            {error}
-          </div>
-        )}
-        <div className="mt-4 text-center">
-          <span className="text-sm text-gray-400">
-            Don\'t have an account?{' '}
-          </span>
-          <button
-            onClick={() => navigate('/signup')}
-            className="text-sm text-purple-400 hover:text-purple-300 underline"
-          >
-            Sign Up
-          </button>
+
+        <div className="mt-6 sm:mt-8 text-center">
+          <p className="text-sm sm:text-base text-gray-400">
+            Don't have an account? <button onClick={() => navigate('/signup')} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Sign up</button>
+          </p>
         </div>
       </div>
     </div>

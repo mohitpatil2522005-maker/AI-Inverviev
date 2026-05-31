@@ -81,7 +81,7 @@ export function ParticleCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none absolute inset-0 w-full h-full"
+      className="inset-0 pointer-events-none absolute h-full w-full"
       style={{ opacity: 0.6 }}
     />
   )
@@ -89,24 +89,43 @@ export function ParticleCanvas() {
 
 export function GradientOrbs() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="inset-0 pointer-events-none absolute overflow-hidden">
       <motion.div
         animate={{ x: [0, 50, 0], y: [0, -30, 0] }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-40 -left-40 w-96 h-96 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)" }}
+        className="-top-40 -left-40 w-96 h-96 absolute rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)",
+        }}
       />
       <motion.div
         animate={{ x: [0, -40, 0], y: [0, 40, 0] }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 5 }}
-        className="absolute top-1/3 -right-20 w-80 h-80 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)" }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 5,
+        }}
+        className="-right-20 w-80 h-80 absolute top-1/3 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)",
+        }}
       />
       <motion.div
         animate={{ x: [0, 30, 0], y: [0, 50, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 10 }}
-        className="absolute -bottom-20 left-1/3 w-72 h-72 rounded-full"
-        style={{ background: "radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%)" }}
+        transition={{
+          duration: 18,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 10,
+        }}
+        className="-bottom-20 w-72 min-h-[18rem] h-auto md:h-72 absolute left-1/3 rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%)",
+        }}
       />
     </div>
   )
@@ -114,7 +133,7 @@ export function GradientOrbs() {
 
 export default function AnimatedBackground() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="inset-0 pointer-events-none absolute overflow-hidden">
       <GradientOrbs />
       <ParticleCanvas />
     </div>

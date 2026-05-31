@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ─── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
@@ -67,8 +69,7 @@
   --font-mono: "Geist Mono", "JetBrains Mono", monospace;
 }
 
-/* ─── Base Layer ─────────────────────────────────────────────────────────── */
-@layer base {
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
   *,
   *::before,
   *::after {
@@ -119,10 +120,8 @@
     font-weight: 700;
     letter-spacing: -0.02em;
   }
-}
 
 /* ─── Component Utilities ────────────────────────────────────────────────── */
-@layer components {
   .glass-card {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
@@ -217,25 +216,25 @@
     );
     border: 1px solid rgba(255, 255, 255, 0.06);
   }
-}
 
 /* ─── Custom Utilities ───────────────────────────────────────────────────── */
-@utility scrollbar-hidden {
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-@utility text-gradient {
+.text-gradient {
   background: linear-gradient(135deg, #c084fc, #818cf8, #67e8f9);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-@utility animate-float {
+.animate-float {
   animation: float 6s ease-in-out infinite;
 }
 

@@ -10,7 +10,14 @@ interface CountUpProps {
   className?: string
 }
 
-export default function CountUp({ end, duration = 2, suffix = "", prefix = "", decimals = 0, className }: CountUpProps) {
+export default function CountUp({
+  end,
+  duration = 2,
+  suffix = "",
+  prefix = "",
+  decimals = 0,
+  className,
+}: CountUpProps) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const isInView = useInView(ref, { once: true })
@@ -33,7 +40,11 @@ export default function CountUp({ end, duration = 2, suffix = "", prefix = "", d
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{count < 1 && decimals === 0 ? Math.floor(count) : count.toFixed(decimals)}{suffix}
+      {prefix}
+      {count < 1 && decimals === 0
+        ? Math.floor(count)
+        : count.toFixed(decimals)}
+      {suffix}
     </span>
   )
 }

@@ -17,9 +17,9 @@ import AdminPanelPage from "./pages/AdminPanelPage";
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -32,9 +32,9 @@ function App() {
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/admin" element={<AdminPanelPage />} />
-          {/* Other routes will be added here */}
-        </Routes>
-      </Layout>
+        </Route>
+        {/* Other routes will be added here */}
+      </Routes>
     </BrowserRouter>
   );
 }

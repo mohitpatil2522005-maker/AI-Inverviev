@@ -26,7 +26,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log('MongoDB connection error:', err));
 
+const userRoutes = require('./routes/userRoutes');
+const actionRoutes = require('./routes/actionRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+
 // Routes
+app.use('/api/users', userRoutes);
+app.use('/api/actions', actionRoutes);
+app.use('/api/payments', paymentRoutes);
+
 app.get('/', (req, res) => {
   res.send('AI Interview SaaS API is running');
 });
@@ -34,5 +42,5 @@ app.get('/', (req, res) => {
 // Start server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(Server is running on port );
+  console.log(`Server is running on port ${PORT}`);
 });

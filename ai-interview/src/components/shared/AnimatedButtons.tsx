@@ -13,7 +13,13 @@ interface RippleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
   rippleColor?: string
 }
 
-export function RippleButton({ children, className, rippleColor = "rgba(255, 255, 255, 0.35)", onClick, ...props }: RippleButtonProps) {
+export function RippleButton({
+  children,
+  className,
+  rippleColor = "rgba(255, 255, 255, 0.35)",
+  onClick,
+  ...props
+}: RippleButtonProps) {
   const { ...rest } = props
   const [ripples, setRipples] = useState<Ripple[]>([])
 
@@ -26,7 +32,7 @@ export function RippleButton({ children, className, rippleColor = "rgba(255, 255
 
     const newRipple = { x, y, id: Date.now() }
     setRipples((prev) => [...prev, newRipple])
-    
+
     if (onClick) onClick(event)
   }
 
@@ -45,7 +51,9 @@ export function RippleButton({ children, className, rippleColor = "rgba(255, 255
       onClick={createRipple}
       {...rest}
     >
-      <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
+      <span className="gap-2 relative z-10 flex items-center justify-center">
+        {children}
+      </span>
       <AnimatePresence>
         {ripples.map((ripple) => (
           <motion.span
@@ -71,7 +79,13 @@ export function RippleButton({ children, className, rippleColor = "rgba(255, 255
   )
 }
 
-export function MagneticButton({ children, className }: { children: React.ReactNode; className?: string }) {
+export function MagneticButton({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const buttonRef = useRef<HTMLDivElement>(null)
 
