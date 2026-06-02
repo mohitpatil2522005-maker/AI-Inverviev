@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -7,43 +8,48 @@ import {
   MessageSquare,
   Code2,
   Info,
-  User,
   Bot,
-  Sparkles,
-  StopCircle,
-  Brain,
   Lightbulb,
+  Activity,
+  Terminal,
 } from "lucide-react"
 import Editor from "@monaco-editor/react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import GlassCard from "@/components/shared/GlassCard"
-import WaveformBars from "@/components/shared/WaveformBars"
-import PageTransition from "@/components/shared/PageTransition"
-import { Input } from "@/components/ui/input"
 import api from "@/lib/api"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+
+// Reusing existing shared components
+import PageTransition from "@/components/shared/PageTransition"
 
 export default function LiveInterviewPage() {
+  const [activeTab, setActiveTab] = useState<"chat" | "editor">("chat")
   const [isListening, setIsListening] = useState(false)
-  const [isCodingMode, setIsCodingMode] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [userInput, setUserInput] = useState("")
+  const [timeLeft, setTimeLeft] = useState(1800) // 30 mins
   const [transcript, setTranscript] = useState([
     {
       role: "ai",
-      text: "Hello John! I'm your AI interviewer for today. We'll be focusing on Frontend Engineering for your upcoming Google interview. Ready to start?",
-      time: "10:00 AM",
+      text: "Great to have you here, John! Let's dive into some technical challenges. Could you explain your approach to handling state management in large-scale React applications?",
+      time: "10:02 AM",
+    },
+    {
+      role: "user",
+      text: "In large-scale apps, I typically analyze the state's scope first. For global UI state, Context is fine, but for complex business logic, I prefer Zustand for its efficiency and selector-based updates.",
+      time: "10:03 AM",
     },
   ])
-  const [userInput, setUserInput] = useState("")
-  const [timeLeft, setTimeLeft] = useState(1800) // 30 mins
-  const [isSpeaking, setIsSpeaking] = useState(false)
+
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [recognition, setRecognition] = useState<any>(null)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -58,8 +64,6 @@ export default function LiveInterviewPage() {
     )
     return () => clearInterval(timer)
   }, [])
-
-  const [recognition, setRecognition] = useState<any>(null)
 
   useEffect(() => {
     // Initialize Speech Recognition
@@ -82,9 +86,9 @@ export default function LiveInterviewPage() {
         if (isListening) rec.start() // Keep listening if active
       }
 
-      setRecognition(rec)
+      setTimeout(() => setRecognition(rec), 0)
     }
-  }, [])
+  }, [isListening])
 
   const toggleMic = () => {
     if (isListening) {
@@ -111,7 +115,7 @@ export default function LiveInterviewPage() {
         minute: "2-digit",
       }),
     }
-    setTranscript([...transcript, userMsg])
+    setTranscript(prev => [...prev, userMsg])
     setUserInput("")
 
     try {
@@ -126,7 +130,7 @@ export default function LiveInterviewPage() {
         }),
       }
       setTranscript((prev) => [...prev, aiMsg])
-    } catch (err) {
+    } catch {
       toast.error("Failed to get AI response")
     } finally {
       setIsSpeaking(false)
@@ -135,376 +139,328 @@ export default function LiveInterviewPage() {
 
   return (
     <PageTransition>
-      <div className="md:flex-row gap-4 flex min-h-[calc(100vh-8rem)] h-auto lg:h-[calc(100vh-8rem)] flex-col overflow-hidden">
-        {/* Left Panel: AI Avatar & Controls */}
-        <div className="md:w-1/3 gap-4 flex w-full flex-col overflow-hidden">
-          <GlassCard
-            className="group relative flex flex-1 flex-col items-center justify-center"
-            hover={false}
-          >
-            {/* AI Avatar Visualizer */}
-            <div className="relative">
-              {/* Outer Pulse Rings */}
-              <AnimatePresence>
-                {isSpeaking && (
-                  <>
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1.5, opacity: 1 }}
-                      exit={{ scale: 2, opacity: 0 }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="inset-0 absolute rounded-full border-2 border-primary/30"
-                    />
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1.8, opacity: 1 }}
-                      exit={{ scale: 2.2, opacity: 0 }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="inset-0 absolute rounded-full border-2 border-accent/20"
-                    />
-                  </>
-                )}
-              </AnimatePresence>
+      <TooltipProvider>
+        <div className="w-full bg-[#080812] text-slate-200 font-sans p-6 overflow-hidden selection:bg-primary/30 selection:text-white min-h-[950px]">
+          <div className="max-w-[1400px] mx-auto grid grid-cols-12 gap-6 h-[880px]">
+            
+            {/* Left Sidebar: AI Visualizer & User Info */}
+            <aside className="col-span-3 flex flex-col gap-6 h-full">
+              <div className="flex-1 glass-panel rounded-3xl p-8 flex flex-col items-center justify-between relative overflow-hidden group">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-primary)_0%,_transparent_70%)] opacity-15 pointer-events-none"></div>
+                
+                <div className="relative w-52 h-52 flex items-center justify-center mt-4">
+                  <div className="absolute inset-0 rounded-full border border-primary/20 animate-pulse-custom"></div>
+                  <div className="absolute inset-[-15px] rounded-full border border-accent/10 animate-[pulse-custom_4s_infinite_1s]"></div>
+                  <div className="absolute inset-[-30px] rounded-full border border-dashed border-white/5 animate-rotate-slow"></div>
 
-              {/* Central AI Brain/Logo */}
-              <motion.div
-                animate={isSpeaking ? { scale: [1, 1.05, 1] } : {}}
-                transition={{ duration: 1, repeat: Infinity }}
-                className="w-32 h-32 md:w-48 md:h-48 relative z-10 flex items-center justify-center rounded-full"
-                style={{
-                  background:
-                    "radial-gradient(circle, #8b5cf6 0%, #1e1b4b 100%)",
-                  boxShadow: isSpeaking
-                    ? "0 0 60px rgba(139, 92, 246, 0.5)"
-                    : "0 0 40px rgba(139, 92, 246, 0.2)",
-                  border: "2px solid rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                <div className="inset-0 absolute rounded-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-                <Bot size={64} className="text-white relative z-10" />
+                  <div className="relative w-36 h-36 rounded-full bg-gradient-to-br from-[#8b5cf6] to-[#1e1b4b] border-2 border-white/10 flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,0.4)] transition-transform group-hover:scale-105 duration-500 overflow-hidden">
+                    <Bot className="w-14 h-14 text-white relative z-10" />
+                  </div>
 
-                {/* Orbital elements */}
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  className="inset-0 border-white/5 absolute scale-125 rounded-full border"
-                />
-              </motion.div>
-
-              {/* Status Indicator */}
-              <div className="-bottom-4 px-4 py-1.5 glass-card border-white/10 gap-2 absolute left-1/2 flex -translate-x-1/2 items-center rounded-full whitespace-nowrap">
-                <div
-                  className={`w-2 h-2 rounded-full ${isSpeaking ? "animate-pulse bg-primary" : "bg-green-500"}`}
-                />
-                <span className="font-bold text-white tracking-wider text-sm uppercase">
-                  {isSpeaking ? "AI Speaking..." : "AI Listening"}
-                </span>
-              </div>
-            </div>
-
-            {/* Bottom Controls */}
-            <div className="mt-12 gap-6 flex items-center">
-              <Tooltip>
-                <TooltipTrigger className="inline-flex">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    className={`w-14 h-14 rounded-full border-2 transition-all duration-300 ${isListening ? "border-primary bg-primary/10 text-primary shadow-[0_0_20px_rgba(139,92,246,0.3)]" : "border-white/10 text-slate-400"}`}
-                    onClick={toggleMic}
-                  >
-                    {isListening ? <Mic size={24} /> : <MicOff size={24} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isListening ? "Mute Microphone" : "Unmute Microphone"}</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Button
-                variant="outline"
-                className="w-14 h-14 border-white/10 text-slate-400 rounded-full border-2"
-                onClick={() => setIsCodingMode(!isCodingMode)}
-              >
-                <Code2 size={24} />
-              </Button>
-            </div>
-
-            <div className="mt-6 flex flex-col items-center">
-              <WaveformBars
-                active={isListening}
-                bars={20}
-                className="h-6"
-                color={isListening ? "#8b5cf6" : "#334155"}
-              />
-              <p className="text-slate-500 mt-2 text-sm">
-                REAL-TIME VOICE WAVEFORM
-              </p>
-            </div>
-          </GlassCard>
-
-          {/* User Info Card */}
-          <GlassCard className="p-4 gap-4 h-24 flex items-center">
-            <div className="w-12 h-12 bg-slate-800 border-white/10 flex items-center justify-center rounded-full border">
-              <User size={24} className="text-slate-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-white">John Doe</p>
-              <div className="gap-2 mt-1 flex items-center">
-                <Badge
-                  variant="outline"
-                  className="px-1.5 py-0 border-white/10 text-slate-400 text-sm"
-                >
-                  Frontend Engineer
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="px-1.5 py-0 border-white/10 text-slate-400 text-sm"
-                >
-                  Level 4
-                </Badge>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-violet-400">
-                {formatTime(timeLeft)}
-              </p>
-              <p className="text-slate-500 text-sm uppercase">Remaining</p>
-            </div>
-          </GlassCard>
-        </div>
-
-        {/* Center Panel: Transcript or Code Editor */}
-        <div className="gap-4 flex flex-1 flex-col overflow-hidden">
-          <GlassCard className="p-0 relative flex flex-1 flex-col overflow-hidden">
-            <div className="px-6 py-4 border-white/10 bg-white/[0.02] flex items-center justify-between border-b">
-              <div className="gap-3 flex items-center">
-                <div className="p-2 rounded-lg border border-primary/20 bg-primary/10">
-                  {isCodingMode ? (
-                    <Code2 size={16} className="text-primary" />
-                  ) : (
-                    <MessageSquare size={16} className="text-primary" />
-                  )}
-                </div>
-                <h3 className="font-bold text-white text-sm">
-                  {isCodingMode ? "Coding Editor" : "Live Transcript"}
-                </h3>
-              </div>
-              <div className="gap-2 flex items-center">
-                <Badge
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    color: "#94a3b8",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                  }}
-                >
-                  <Sparkles size={12} className="mr-1 inline" /> AI Assisted
-                </Badge>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-hidden">
-              {isCodingMode ? (
-                <div className="relative h-full">
-                  <Editor
-                    height="100%"
-                    defaultLanguage="javascript"
-                    theme="vs-dark"
-                    value="// Write your solution here\nfunction optimizeSystem(data) {\n  \n}"
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      lineNumbers: "on",
-                      padding: { top: 20 },
-                    }}
-                  />
-                  <div className="bottom-4 right-4 gap-2 absolute flex">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="bg-slate-900 border-white/10 text-sm"
-                    >
-                      Run Tests
-                    </Button>
-                    <Button size="sm" className="neon-button text-sm">
-                      Submit Code
-                    </Button>
+                  <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-2 glass-panel rounded-full flex items-center gap-2.5 border border-white/20 shadow-2xl z-20">
+                    <div className={cn(
+                      "w-2 h-2 rounded-full shadow-[0_0_12px_rgba(139,92,246,0.8)] transition-colors duration-300", 
+                      isSpeaking ? "bg-primary animate-pulse" : "bg-emerald-500"
+                    )}></div>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-[0.25em] whitespace-nowrap">
+                      {isSpeaking ? "AI Speaking" : "AI Listening"}
+                    </span>
                   </div>
                 </div>
-              ) : (
-                <div
-                  ref={scrollRef}
-                  className="p-6 space-y-6 scrollbar-hidden h-full overflow-y-auto"
-                >
-                  {transcript.map((msg, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`gap-4 flex ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+
+                <div className="flex flex-col items-center w-full mb-4">
+                  <div className="flex items-end justify-center gap-1.5 h-10">
+                    {[0.8, 1.2, 0.6, 1.0, 0.7, 1.3, 0.9, 1.1].map((dur, i) => (
+                      <motion.div 
+                        key={i} 
+                        animate={isSpeaking || isListening ? {
+                          height: ["4px", i % 2 === 0 ? "28px" : "18px", "4px"],
+                          opacity: [0.5, 1, 0.5]
+                        } : { height: "4px", opacity: 0.3 }}
+                        transition={{
+                          duration: dur,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                        className={cn(
+                          "w-1.5 rounded-full", 
+                          i % 3 === 0 ? "bg-accent" : "bg-primary"
+                        )} 
+                      />
+                    ))}
+                  </div>
+                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.35em] mt-6 text-center">Audio Activity Frequency</p>
+                </div>
+              </div>
+
+              <div className="h-[92px] glass-panel rounded-3xl p-5 flex items-center gap-4 border border-white/10 shadow-lg shadow-black/20">
+                <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-white/10 flex items-center justify-center overflow-hidden ring-1 ring-white/5">
+                  <img src="https://i.pravatar.cc/100?u=john" alt="User Profile" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-xs font-bold text-white font-heading">Johnathan Doe</h4>
+                  <p className="text-[10px] text-slate-500 mt-0.5 font-medium">L4 Frontend Engineer</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-primary font-mono tracking-tighter">{formatTime(timeLeft)}</p>
+                  <p className="text-[8px] text-slate-400 uppercase font-bold tracking-widest mt-1">Remaining</p>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="col-span-6 flex flex-col h-full">
+              <div className="flex-1 glass-panel rounded-3xl overflow-hidden flex flex-col border border-white/10">
+                <header className="px-8 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.04]">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
+                      <MessageSquare className="w-[18px] h-[18px] text-[#a78bfa]" />
+                    </div>
+                    <h2 className="text-sm font-bold text-white font-heading tracking-tight">Session Workspace</h2>
+                  </div>
+                  
+                  <div className="flex bg-black/50 p-1 rounded-xl border border-white/10 shadow-inner">
+                    <button 
+                      onClick={() => setActiveTab("chat")}
+                      className={cn(
+                        "px-5 py-2 rounded-lg text-[11px] font-bold transition-all relative",
+                        activeTab === "chat" ? "text-white" : "text-slate-500 hover:text-slate-300"
+                      )}
                     >
-                      <div
-                        className={`w-8 h-8 rounded-lg flex shrink-0 items-center justify-center ${msg.role === "ai" ? "border border-primary/30 bg-primary/20 text-primary" : "bg-slate-800 text-slate-400 border-white/10 border"}`}
-                      >
-                        {msg.role === "ai" ? (
-                          <Bot size={16} />
-                        ) : (
-                          <User size={16} />
-                        )}
-                      </div>
-                      <div
-                        className={`p-4 rounded-2xl text-sm leading-relaxed max-w-[80%] ${
-                          msg.role === "ai"
-                            ? "bg-white/[0.03] border-white/10 text-slate-200 rounded-tl-none border"
-                            : "text-white rounded-tr-none border border-primary/20 bg-primary/10"
-                        }`}
-                      >
-                        {msg.text}
-                        <p className="mt-2 text-slate-500 text-sm opacity-60">
-                          {msg.time}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                  {isSpeaking && (
-                    <div className="gap-4 flex">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center border border-primary/30 bg-primary/20 text-primary">
-                        <Bot size={16} />
-                      </div>
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border-white/10 gap-1 flex rounded-tl-none border">
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 0.8 }}
-                          className="w-1.5 h-1.5 rounded-full bg-primary"
+                      {activeTab === "chat" && (
+                        <motion.div 
+                          layoutId="activeTab" 
+                          className="absolute inset-0 bg-primary/90 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.3)]" 
                         />
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 0.8,
-                            delay: 0.2,
-                          }}
-                          className="w-1.5 h-1.5 rounded-full bg-primary"
+                      )}
+                      <span className="relative z-10">Chat</span>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab("editor")}
+                      className={cn(
+                        "px-5 py-2 rounded-lg text-[11px] font-bold transition-all relative",
+                        activeTab === "editor" ? "text-white" : "text-slate-500 hover:text-slate-300"
+                      )}
+                    >
+                      {activeTab === "editor" && (
+                        <motion.div 
+                          layoutId="activeTab" 
+                          className="absolute inset-0 bg-primary/90 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.3)]" 
                         />
-                        <motion.div
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 0.8,
-                            delay: 0.4,
-                          }}
-                          className="w-1.5 h-1.5 rounded-full bg-primary"
+                      )}
+                      <span className="relative z-10">Editor</span>
+                    </button>
+                  </div>
+                </header>
+
+                <div className="flex-1 overflow-hidden relative">
+                  <AnimatePresence mode="wait">
+                    {activeTab === "chat" ? (
+                      <motion.div 
+                        key="chat"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="h-full flex flex-col"
+                      >
+                        <div ref={scrollRef} className="flex-1 p-8 overflow-y-auto space-y-8 scrollbar-hidden bg-black/15">
+                          {transcript.map((msg, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={cn("flex gap-6 items-start", msg.role === "user" && "flex-row-reverse")}
+                            >
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl shrink-0 flex items-center justify-center shadow-lg transition-transform hover:scale-105",
+                                msg.role === "ai" ? "bg-primary/20 border border-primary/40" : "bg-slate-800 border border-white/10 overflow-hidden"
+                              )}>
+                                {msg.role === "ai" ? (
+                                  <Bot className="w-5 h-5 text-[#a78bfa]" />
+                                ) : (
+                                  <img src="https://i.pravatar.cc/100?u=john" alt="User Avatar" className="w-full h-full object-cover" />
+                                )}
+                              </div>
+                              <div className={cn("flex flex-col gap-2 max-w-[85%]", msg.role === "user" && "items-end")}>
+                                <div className={cn(
+                                  "px-6 py-4 rounded-3xl text-[13px] leading-relaxed shadow-sm border transition-colors",
+                                  msg.role === "ai" 
+                                    ? "rounded-tl-none bg-white/[0.06] border-primary/20 text-slate-200 hover:bg-white/[0.08]" 
+                                    : "rounded-tr-none bg-primary/25 border-primary/40 text-white hover:bg-primary/30"
+                                )}>
+                                  {msg.text}
+                                </div>
+                                <span className={cn("text-[9px] text-slate-500 font-bold uppercase tracking-widest", msg.role === "ai" ? "ml-1" : "mr-1")}>
+                                  {msg.role === "ai" ? "AI Interviewer" : "John Doe"} • {msg.time}
+                                </span>
+                              </div>
+                            </motion.div>
+                          ))}
+                          {isSpeaking && (
+                            <motion.div 
+                              initial={{ opacity: 0 }} 
+                              animate={{ opacity: 1 }} 
+                              className="flex gap-6 items-start"
+                            >
+                              <div className="w-10 h-10 rounded-xl shrink-0 bg-primary/20 border border-primary/40 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-[#a78bfa]" />
+                              </div>
+                              <div className="px-6 py-4 rounded-3xl rounded-tl-none bg-white/[0.06] border border-primary/20 flex gap-1">
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1 h-1 rounded-full bg-primary" />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1 h-1 rounded-full bg-primary" />
+                                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1 h-1 rounded-full bg-primary" />
+                              </div>
+                            </motion.div>
+                          )}
+                        </div>
+
+                        <footer className="p-6 bg-black/40 border-t border-white/10 h-[92px] flex items-center">
+                          <div className="flex items-center gap-4 w-full">
+                            <Tooltip>
+                              <TooltipTrigger 
+                                onClick={toggleMic}
+                                className={cn(
+                                  "p-3.5 rounded-xl border transition-all active:scale-95",
+                                  isListening 
+                                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(139,92,246,0.3)]" 
+                                    : "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10"
+                                )}
+                              >
+                                {isListening ? <Mic className="w-[18px] h-[18px]" /> : <MicOff className="w-[18px] h-[18px]" />}
+                              </TooltipTrigger>
+                              <TooltipContent>{isListening ? "Stop Voice Input" : "Start Voice Input"}</TooltipContent>
+                            </Tooltip>
+                            
+                            <div className="flex-1 relative group">
+                              <div className="absolute -inset-1 bg-primary/20 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity duration-500"></div>
+                              <input 
+                                type="text" 
+                                placeholder="Type your response..." 
+                                value={userInput}
+                                onChange={(e) => setUserInput(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                                className="relative w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-3.5 text-sm text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-slate-600 shadow-inner" 
+                              />
+                              <button 
+                                onClick={handleSend}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] hover:scale-105 active:scale-95 transition-transform"
+                                aria-label="Send message"
+                              >
+                                <Send className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </footer>
+                      </motion.div>
+                    ) : (
+                      <motion.div 
+                        key="editor"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="h-full bg-[#1e1e1e]"
+                      >
+                        <div className="h-full flex flex-col">
+                          <div className="flex items-center justify-between px-6 py-2 bg-black/40 border-b border-white/5">
+                            <div className="flex items-center gap-2">
+                              <Terminal className="w-3.5 h-3.5 text-slate-500" />
+                              <span className="text-[10px] font-mono text-slate-400">solution.ts</span>
+                            </div>
+                            <Badge variant="outline" className="text-[10px] border-emerald-500/20 text-emerald-500 bg-emerald-500/5">Typescript</Badge>
+                          </div>
+                          <div className="flex-1 overflow-hidden">
+                            <Editor
+                              height="100%"
+                              defaultLanguage="typescript"
+                              theme="vs-dark"
+                              value={`// Handling state in large-scale React apps\nimport { create } from 'zustand';\n\ninterface AppState {\n  count: number;\n  increment: () => void;\n}\n\nexport const useStore = create<AppState>((set) => ({\n  count: 0,\n  increment: () => set((state) => ({ count: state.count + 1 })),\n}));`}
+                              options={{
+                                minimap: { enabled: false },
+                                fontSize: 13,
+                                padding: { top: 20, bottom: 20 },
+                                scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
+                                lineNumbers: 'on',
+                                glyphMargin: false,
+                                folding: true,
+                                lineDecorationsWidth: 10,
+                                lineNumbersMinChars: 3,
+                                fontFamily: "var(--font-mono)"
+                              }}
+                            />
+                          </div>
+                          <div className="p-4 border-t border-white/5 bg-black/20 flex justify-end gap-3">
+                            <Button variant="outline" size="sm" className="h-8 text-[11px] border-white/10 hover:bg-white/5">Reset</Button>
+                            <Button size="sm" className="h-8 text-[11px] neon-button">Compile & Run</Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </main>
+
+            {/* Right Sidebar */}
+            <aside className="col-span-3 flex flex-col gap-6 h-full">
+              <div className="flex-1 glass-panel rounded-3xl p-7 flex flex-col border border-white/10">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-[#06b6d4]" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white font-heading uppercase tracking-wider">Metrics Console</h3>
+                </div>
+
+                <div className="space-y-7">
+                  {[
+                    { label: "Technical Depth", value: 82 },
+                    { label: "Confidence", value: 74 },
+                    { label: "Clarity", value: 91 }
+                  ].map((metric) => (
+                    <div key={metric.label}>
+                      <div className="flex justify-between items-center mb-2.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{metric.label}</span>
+                        <span className="text-xs font-bold" style={{ color: `var(--color-${metric.label.toLowerCase().split(' ')[0]})` }}>{metric.value}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${metric.value}%` }}
+                          transition={{ duration: 1.5, ease: "circOut" }}
+                          className="h-full rounded-full" 
+                          style={{ backgroundColor: `var(--color-${metric.label.toLowerCase().split(' ')[0]})` }}
                         />
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
-              )}
-            </div>
 
-            {/* Message Input */}
-            {!isCodingMode && (
-              <div className="p-4 bg-white/[0.02] border-white/10 border-t">
-                <div className="relative">
-                  <Input
-                    placeholder="Type your response or click the mic to speak..."
-                    className="h-12 pl-4 pr-12 bg-white/5 border-white/10 text-white"
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                  />
-                  <Button
-                    size="icon"
-                    className="right-1.5 w-9 h-9 neon-button absolute top-1/2 -translate-y-1/2"
-                    onClick={handleSend}
-                  >
-                    <Send size={16} />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </GlassCard>
-        </div>
+                <div className="my-8 h-px bg-white/10"></div>
 
-        {/* Right Panel: Insights & Analysis */}
-        <div className="xl:flex w-72 gap-4 hidden flex-col overflow-hidden">
-          <GlassCard className="p-5 flex flex-1 flex-col">
-            <h3 className="font-bold text-white text-sm mb-4 gap-2 flex items-center">
-              <Brain size={14} className="text-primary" /> Real-time Analysis
-            </h3>
-
-            <div className="space-y-6">
-              {[
-                { label: "Technical Depth", value: 82, color: "#8b5cf6" },
-                { label: "Confidence", value: 74, color: "#3b82f6" },
-                { label: "Clarity", value: 88, color: "#06b6d4" },
-                { label: "Filler Words", value: 12, color: "#ef4444" },
-              ].map((metric) => (
-                <div key={metric.label}>
-                  <div className="mb-1.5 font-bold tracking-wider flex justify-between text-sm uppercase">
-                    <span style={{ color: "#475569" }}>{metric.label}</span>
-                    <span style={{ color: metric.color }}>{metric.value}%</span>
-                  </div>
-                  <div className="h-1 bg-white/5 overflow-hidden rounded-full">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${metric.value}%` }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: metric.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Separator className="my-6 bg-white/5" />
-
-            <div className="flex-1">
-              <h4 className="font-bold text-slate-500 tracking-widest mb-4 text-sm uppercase">
-                AI Hints
-              </h4>
-              <div className="space-y-3">
-                {[
-                  {
-                    icon: Lightbulb,
-                    text: "Try to mention specific React hooks like useMemo for optimization.",
-                    color: "#f59e0b",
-                  },
-                  {
-                    icon: Info,
-                    text: "Maintain a steady pace. You're speaking slightly too fast.",
-                    color: "#3b82f6",
-                  },
-                ].map((hint, i) => (
-                  <div
-                    key={i}
-                    className="p-3 rounded-xl bg-white/[0.02] border-white/5 gap-2 flex border"
-                  >
-                    <hint.icon
-                      size={14}
-                      className="mt-0.5 shrink-0"
-                      style={{ color: hint.color }}
-                    />
-                    <p className="leading-relaxed text-slate-400 text-[11px]">
-                      {hint.text}
+                <div className="flex-1 space-y-4">
+                  <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/5 flex gap-4 items-start hover:bg-white/[0.06] transition-all group cursor-default">
+                    <Lightbulb className="w-3.5 h-3.5 text-[#f59e0b] mt-1 shrink-0 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.4)] transition-all" />
+                    <p className="text-[11px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                      Mention how <span className="text-slate-200 font-medium">Zustand selectors</span> prevent unnecessary re-renders.
                     </p>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/5 flex gap-4 items-start hover:bg-white/[0.06] transition-all group cursor-default">
+                    <Info className="w-3.5 h-3.5 text-[#3b82f6] mt-1 shrink-0 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.4)] transition-all" />
+                    <p className="text-[11px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                      Your pace is good. Use more <span className="text-slate-200 font-medium">action words</span>.
+                    </p>
+                  </div>
+                </div>
 
-            <Button
-              variant="outline"
-              className="mt-4 h-11 border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 w-full"
-            >
-              <StopCircle size={16} className="mr-2" /> End Interview
-            </Button>
-          </GlassCard>
+                <button className="mt-8 w-full h-[52px] rounded-2xl border border-red-500/30 bg-red-500/5 text-red-400 text-[11px] font-bold uppercase tracking-widest hover:bg-red-500/10 hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group">
+                  <div className="w-2 h-2 rounded-full bg-red-500 group-hover:animate-ping"></div>
+                  End Session
+                </button>
+              </div>
+            </aside>
+
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
     </PageTransition>
   )
 }

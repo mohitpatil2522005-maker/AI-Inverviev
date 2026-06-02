@@ -18,6 +18,7 @@ import GlassCard from "@/components/shared/GlassCard"
 import ScoreRing from "@/components/shared/ScoreRing"
 import PageTransition from "@/components/shared/PageTransition"
 import { MagneticButton } from "@/components/shared/AnimatedButtons"
+import ScanningLine from "@/components/shared/ScanningLine"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -599,11 +600,11 @@ export default function ResumeAnalyzerPage() {
               </div>
 
               {/* Resume Preview */}
-              <GlassCard className="p-4 flex flex-col">
+              <GlassCard className="p-4 flex flex-col relative overflow-hidden">
                 <h3 className="text-sm font-bold text-white mb-4 tracking-widest text-slate-500 uppercase">
                   Resume Preview
                 </h3>
-                <div className="rounded-lg bg-white/5 border-white/10 p-4 scrollbar-hidden flex-1 overflow-y-auto border">
+                <div className="rounded-lg bg-white/5 border-white/10 p-4 scrollbar-hidden flex-1 overflow-y-auto border relative">
                   <div className="space-y-4">
                     <div className="h-4 bg-white/10 w-1/2 rounded" />
                     <div className="h-2 bg-white/5 w-full rounded" />
@@ -621,15 +622,7 @@ export default function ResumeAnalyzerPage() {
                     </div>
                   </div>
                   {/* Scanning animation overlay */}
-                  <motion.div
-                    className="inset-x-0 h-0.5 absolute bg-primary/40 shadow-[0_0_15px_#8b5cf6]"
-                    animate={{ top: ["0%", "100%", "0%"] }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
+                  <ScanningLine color="var(--color-primary)" />
                 </div>
               </GlassCard>
             </div>

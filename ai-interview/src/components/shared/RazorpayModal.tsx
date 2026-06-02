@@ -48,19 +48,21 @@ export default function RazorpayModal({
         currency: "INR",
         name: "InterviewAI",
         order_id: order.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         handler: async (response: any) => {
-          // 3. Verify on backend
-          const verifyRes = await api.post("/payments/verify", response)
-          if (verifyRes.data.success) {
-            setStep(2)
-          }
-        },
+            // 3. Verify on backend
+            const verifyRes = await api.post("/payments/verify", response)
+            if (verifyRes.data.success) {
+              setStep(2)
+            }
+          },
         theme: { color: "#8b5cf6" },
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rzp = new (window as any).Razorpay(options)
       rzp.open()
-    } catch (error) {
+    } catch {
       toast.error("Checkout failed to load")
     } finally {
       setLoading(false)

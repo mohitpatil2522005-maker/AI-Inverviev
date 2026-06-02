@@ -397,13 +397,26 @@ function HeroSection() {
           <div className="-inset-4 blur-3xl absolute rounded-[2.5rem] bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 opacity-50 transition-opacity duration-1000 group-hover:opacity-100" />
 
           <div className="glass-card p-2 md:p-4 border-white/10 relative overflow-hidden rounded-[2rem]">
-            <div className="relative overflow-hidden rounded-[1.5rem]">
-              <img
-                src="https://images.pexels.com/photos/28428591/pexels-photo-28428591.jpeg"
-                alt="Dashboard Mockup"
-                className="h-auto w-full opacity-40 grayscale transition-all duration-700 group-hover:opacity-60 group-hover:grayscale-0"
-              />
+            <div className="relative overflow-hidden rounded-[1.5rem] bg-[#0a0a18]">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-auto w-full opacity-60 grayscale transition-all duration-700 group-hover:grayscale-0"
+              >
+                <source src="https://videos.pexels.com/video-files/32504236/13860384_640_360_24fps.mp4" type="video/mp4" />
+              </video>
               <div className="inset-0 absolute bg-gradient-to-t from-[#080812] via-transparent to-transparent" />
+              
+              {/* Scanning Line */}
+              <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+                <motion.div
+                  className="absolute left-0 right-0 h-[2px] bg-primary shadow-[0_0_15px_var(--color-primary)]"
+                  animate={{ top: ["-2%", "102%"], opacity: [0, 1, 1, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
 
               {/* Overlaying UI elements to make it look like a mockup */}
               <div className="inset-0 p-6 absolute flex flex-col justify-end text-left">
@@ -740,7 +753,7 @@ function TestimonialsSection() {
 
 function PricingSection() {
   const [isYearly, setIsYearly] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<any>(null)
+  const [selectedPlan, setSelectedPlan] = useState<Record<string, unknown> | null>(null)
 
   return (
     <section id="pricing" className="py-24 px-6 max-w-6xl mx-auto">

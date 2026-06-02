@@ -14,6 +14,14 @@ export default function WaveformBars({
   className,
   color = "#8b5cf6",
 }: WaveformBarsProps) {
+  // deterministic pseudo-random generator based on index
+  const pseudo = (i: number, seed = 1) => {
+    const x = Math.sin(i + seed) * 10000
+    return x - Math.floor(x)
+  }
+
+  const heights = Array.from({ length: bars }).map((_, i) => `${pseudo(i) * 24 + 8}px`)
+  const durations = Array.from({ length: bars }).map((_, i) => 0.8 + pseudo(i + 13) * 0.4)
   return (
     <div className={cn("gap-0.5 flex items-center", className)}>
       {Array.from({ length: bars }).map((_, i) => (
@@ -22,14 +30,14 @@ export default function WaveformBars({
           animate={
             active
               ? {
-                  height: ["4px", `${Math.random() * 24 + 8}px`, "4px"],
+                  height: ["4px", heights[i], "4px"],
                 }
               : { height: "4px" }
           }
           transition={
             active
               ? {
-                  duration: 0.8 + Math.random() * 0.4,
+                  duration: durations[i],
                   repeat: Infinity,
                   delay: i * 0.05,
                   ease: "easeInOut",

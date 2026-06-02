@@ -38,8 +38,10 @@ export default function TypingText({
         setCharIdx((c) => c - 1)
       }, speed / 2)
     } else {
-      setDeleting(false)
-      setTextIdx((i) => (i + 1) % texts.length)
+      timeout = setTimeout(() => {
+        setDeleting(false)
+        setTextIdx((i) => (i + 1) % texts.length)
+      }, 0)
     }
 
     return () => clearTimeout(timeout)

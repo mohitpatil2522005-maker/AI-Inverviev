@@ -54,6 +54,15 @@ const fadeUp = {
   }),
 }
 
+type User = {
+  id: number
+  name: string
+  email: string
+  plan: string
+  joined: string
+  status: string
+}
+
 export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -73,7 +82,7 @@ export default function AdminPage() {
     { name: "Sun", users: 850, interviews: 590 },
   ])
 
-  const [users, setUsers] = useState<any[]>([
+  const [users, setUsers] = useState<User[]>([
     {
       id: 1,
       name: "Sarah Chen",
@@ -131,10 +140,8 @@ export default function AdminPage() {
         if (statsRes.data) setStats(statsRes.data)
         if (usageRes.data) setUsageData(usageRes.data)
         if (usersRes.data) setUsers(usersRes.data)
-      } catch (err) {
-        toast.error(
-          "Failed to sync current platform data (using fallback data)"
-        )
+      } catch {
+        toast.error("Failed to sync current platform data (using fallback data)")
       } finally {
         setLoading(false)
       }
@@ -155,7 +162,7 @@ export default function AdminPage() {
     try {
       await api.post(`/admin/users/${userId}/suspend`)
       toast.success("Account status updated")
-    } catch (err) {
+    } catch {
       toast.error("Operation failed")
     }
   }

@@ -24,6 +24,57 @@ A modern, production-ready AI Interview SaaS web application built with:
 - Improve communication skills
 - Simulate real company interviews
 
+## System & AI Integration Reference
+
+### üõ†Ô∏è Core Tech Stack (MERN)
+
+- **MongoDB:** Acts as the primary database to store user information (such as Name, Email, and Credits) and the AI agent's data collections.
+- **Express.js & Node.js:** Used to build the backend server, configure routes, and handle API requests through controllers.
+- **React.js:** Used to design the frontend (client-side) components, such as the home page and the overall User Interface (UI).
+
+### üì¶ Important Backend Packages
+
+- **Nodemon:** Automatically restarts the backend server whenever any changes are made to the codebase, saving development time.
+- **CORS (Cross-Origin Resource Sharing):** Enables secure data transfer and communication between the frontend and backend without triggering cross-origin errors.
+- **Mongoose:** Provides a straightforward, object-oriented way to connect to the MongoDB database and create structured data schemas.
+
+### üí≥ Third-Party Integrations & Features
+
+- **Razorpay:** Integrated as the payment gateway for the application's credit system, allowing users to securely purchase interview credits.
+- **PDF Downloader/Generator:** Allows users to download their final interview performance report as a PDF file at the end of the session.
+- **Speech-to-Text & Text-to-Speech:** Enables voice interactivity, allowing the AI to ask questions aloud and the user to answer verbally using their microphone.
+
+---
+
+### ü§ñ Step-by-Step AI Integration Process
+
+**1. Generate an API Key**
+First, create an account on an AI provider's platform (such as Google AI Studio for Gemini or the OpenAI Dashboard) to generate a unique, secret **API Key**. This key grants your server the necessary permissions to communicate with the AI model.
+
+**2. Store in Environment Variables (`.env`)**
+For security reasons, the API key should never be hardcoded into the application. It is stored securely in a `.env` file at the root of your backend project:
+`GEMINI_API_KEY=your_secret_api_key_here`
+
+**3. Install the AI SDK in the Backend**
+Install the necessary official package in your Node.js/Express server to connect with the AI provider.
+
+- *For Google Gemini:* `npm install @google/generative-ai`
+- *For OpenAI:* `npm install openai`
+
+**4. Controller Setup and Prompt Engineering**
+Create a controller function in the backend that formats and sends instructions (prompts) to the AI based on the user's data:
+
+- **Resume Parsing:** Extract the raw text from the resume uploaded by the user.
+- **Prompt Structure:** Assign a specific persona to the AI. For example: *"You are an Expert Technical Interviewer. Generate 5 challenging interview questions based on this candidate's Resume and target Job Role."*
+- **API Request:** Send this structured prompt to the AI model using the installed SDK. The AI processes the context and returns the interview questions and evaluation criteria as a JSON response.
+
+**5. Connect to the Frontend (React)**
+When the user clicks "Start Interview":
+
+- The React frontend sends a network request to the specific backend route using libraries like Axios or Fetch.
+- The backend retrieves the generated questions from the AI and sends them back to the frontend.
+- Finally, Text-to-Speech libraries convert these text questions into audio so the AI can "speak" to the user, and Speech-to-Text transcribes the user's spoken answers back into text so the AI can evaluate them.
+
 ## Getting Started
 
 ### Prerequisites
@@ -68,17 +119,17 @@ A modern, production-ready AI Interview SaaS web application built with:
 client/
 +- public/
 +- src/
-¶  +- components/
-¶  ¶  +- layout/
-¶  +- pages/
-¶  +- lib/
-¶  +- redux/
-¶  +- hooks/
-¶  +- utils/
-¶  +- assets/
-¶  +- App.tsx
-¶  +- index.css
-¶  +- main.tsx
+ÔøΩ  +- components/
+ÔøΩ  ÔøΩ  +- layout/
+ÔøΩ  +- pages/
+ÔøΩ  +- lib/
+ÔøΩ  +- redux/
+ÔøΩ  +- hooks/
+ÔøΩ  +- utils/
+ÔøΩ  +- assets/
+ÔøΩ  +- App.tsx
+ÔøΩ  +- index.css
+ÔøΩ  +- main.tsx
 +- .env.local
 +- package.json
 +- tsconfig.json

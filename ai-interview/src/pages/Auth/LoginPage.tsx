@@ -45,8 +45,8 @@ export default function LoginPage() {
       localStorage.setItem("token", token)
       toast.success("Welcome back!")
       navigate("/dashboard")
-    } catch (error: any) {
-      toast.error(error.message || "Login failed")
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Login failed")
     } finally {
       setLoading(false)
     }
@@ -58,7 +58,7 @@ export default function LoginPage() {
       const token = await res.user.getIdToken()
       localStorage.setItem("token", token)
       navigate("/dashboard")
-    } catch (error) {
+    } catch {
       toast.error("Google login failed")
     }
   }

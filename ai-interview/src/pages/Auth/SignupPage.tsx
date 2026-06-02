@@ -94,8 +94,8 @@ export default function SignupPage() {
 
       toast.success("Account created successfully!")
       navigate("/dashboard")
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create account")
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to create account")
     } finally {
       setLoading(false)
     }
@@ -107,7 +107,7 @@ export default function SignupPage() {
       const token = await result.user.getIdToken()
       localStorage.setItem("token", token)
       navigate("/dashboard")
-    } catch (error) {
+    } catch {
       toast.error("Google sign-in failed")
     }
   }
