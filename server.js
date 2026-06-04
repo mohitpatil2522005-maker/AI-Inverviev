@@ -7,8 +7,18 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins.length ? allowedOrigins : true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Connect to MongoDB

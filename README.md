@@ -1,17 +1,17 @@
 # AI Interview SaaS
 
-A modern, production-ready AI Interview SaaS web application built with:
+A modern AI Interview SaaS web application built with:
 
 - **Frontend**: React.js + Tailwind CSS + Framer Motion
-- **Backend**: Node.js + Express.js (to be implemented)
-- **Database**: MongoDB (to be implemented)
-- **Authentication**: Firebase Google Auth + JWT
+- **Backend**: Node.js + Express.js
+- **Database**: MongoDB
+- **Authentication**: Supabase Auth
 - **State Management**: Redux Toolkit
-- **AI APIs**: OpenRouter API (GPT-4 / Claude / Gemini support) (to be integrated)
-- **File Uploads**: Multer (to be implemented in backend)
+- **AI APIs**: OpenRouter API (GPT-4 / Claude / Gemini support)
+- **File Uploads**: Multer
 - **Voice Features**: Web Speech API
 - **Payments**: Razorpay
-- **Deployment Ready**: Vercel + Render
+- **Deployment Targets**: Vercel frontend + Render backend
 
 ## Features
 
@@ -53,13 +53,12 @@ First, create an account on an AI provider's platform (such as Google AI Studio 
 
 **2. Store in Environment Variables (`.env`)**
 For security reasons, the API key should never be hardcoded into the application. It is stored securely in a `.env` file at the root of your backend project:
-`GEMINI_API_KEY=your_secret_api_key_here`
+`OPENROUTER_API_KEY=your_secret_api_key_here`
 
 **3. Install the AI SDK in the Backend**
 Install the necessary official package in your Node.js/Express server to connect with the AI provider.
 
-- *For Google Gemini:* `npm install @google/generative-ai`
-- *For OpenAI:* `npm install openai`
+- *For OpenRouter-compatible models:* `npm install openai`
 
 **4. Controller Setup and Prompt Engineering**
 Create a controller function in the backend that formats and sends instructions (prompts) to the AI based on the user's data:
@@ -84,34 +83,27 @@ When the user clicks "Start Interview":
 
 ### Installation
 
-1. Clone the repository
-2. Install client dependencies:
+1. Clone the repository.
+2. Install frontend dependencies:
    ```bash
-   cd client
+   cd ai-interview
    npm install
    ```
-3. Create a `.env.local` file in the client directory with the following variables:
+3. Install backend dependencies:
+   ```bash
+   cd server
+   npm install
    ```
-   VITE_API_URL=http://localhost:4000
-   VITE_FIREBASE_API_KEY=<your-firebase-api-key>
-   VITE_FIREBASE_AUTH_DOMAIN=<your-firebase-auth-domain>
-   VITE_FIREBASE_PROJECT_ID=<your-firebase-project-id>
-   VITE_FIREBASE_STORAGE_BUCKET=<your-firebase-storage-bucket>
-   VITE_FIREBASE_MESSAGING_SENDER_ID=<your-firebase-sender-id>
-   VITE_FIREBASE_APP_ID=<your-firebase-app-id>
-   VITE_RAZORPAY_KEY_ID=<your-razorpay-key-id>
-   ```
-4. Start the client development server:
+4. Create a `.env.local` file in `ai-interview/` using the variables listed below.
+5. Create a `.env` file at the repo root using the backend variables listed below.
+6. Start the frontend:
    ```bash
    npm run dev
    ```
-
-### Backend Setup (to be implemented)
-
-1. Navigate to the server directory
-2. Install server dependencies
-3. Set up environment variables for the backend
-4. Start the server
+7. Start the backend from the `server/` folder:
+   ```bash
+   npm start
+   ```
 
 ## Project Structure
 
@@ -139,35 +131,36 @@ client/
 
 ## Environment Variables
 
-The client requires the following environment variables in `.env.local`:
+Frontend `ai-interview/.env.local`:
 
-- `VITE_API_URL`: The base URL for the API (e.g., `http://localhost:4000`)
-- `VITE_FIREBASE_API_KEY`: Firebase API key
-- `VITE_FIREBASE_AUTH_DOMAIN`: Firebase auth domain
-- `VITE_FIREBASE_PROJECT_ID`: Firebase project ID
-- `VITE_FIREBASE_STORAGE_BUCKET`: Firebase storage bucket
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`: Firebase messaging sender ID
-- `VITE_FIREBASE_APP_ID`: Firebase app ID
-- `VITE_RAZORPAY_KEY_ID`: Razorpay key ID
+- `VITE_API_URL`: The base URL for the API, for example `https://your-backend.onrender.com/api`
+- `VITE_SUPABASE_URL`: Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Supabase anon key
+- `VITE_RAZORPAY_KEY_ID`: Razorpay public key ID
+
+Backend `.env`:
+
+- `PORT`: Server port, usually `4000`
+- `MONGODB_URI`: MongoDB Atlas connection string
+- `SUPABASE_URL`: Supabase project URL
+- `SUPABASE_ANON_KEY`: Supabase anon key
+- `RAZORPAY_KEY_ID`: Razorpay key ID
+- `RAZORPAY_KEY_SECRET`: Razorpay key secret
+- `CORS_ORIGIN`: Comma-separated allowed frontend origins
 
 ## Notes
 
-- This is a basic setup with placeholder pages. The actual implementation of the features (like live interview, resume analyzer, etc.) needs to be completed.
-- The backend is not yet implemented. You will need to set up a Node.js/Express server with MongoDB, Firebase Admin SDK, Razorpay integration, and OpenRouter API integration.
-- Authentication is set up with Firebase (Google and email/password) and JWT tokens are stored in localStorage.
-- Redux is used for state management, with an auth slice handling user authentication state.
+- The frontend now uses Supabase Auth.
+- The backend verifies Supabase bearer tokens and uses MongoDB plus Razorpay.
+- The app still needs final production cleanup in a few unrelated TypeScript files before the frontend build is fully green.
 
 ## Future Work
 
-- Implement the backend APIs for authentication, interview sessions, resume analysis, payment processing, etc.
-- Integrate OpenRouter AI API for generating interview questions and feedback.
-- Implement Web Speech API for voice-to-text in the live interview page.
-- Add Razorpay payment integration for subscription plans.
-- Create the actual UI components for each feature as per the design specifications.
-- Add protected routes to ensure only authenticated users can access certain pages.
-- Implement role-based access control for admin panel.
+- Implement the remaining interview generation and resume parsing workflows.
+- Add file upload handling for resume documents.
 - Add real-time updates using WebSockets or SSE for live interview features.
 - Optimize performance with lazy loading, code splitting, and caching.
+- Finish the remaining production TypeScript cleanup.
 - Deploy frontend to Vercel and backend to Render.
 
 ## License
