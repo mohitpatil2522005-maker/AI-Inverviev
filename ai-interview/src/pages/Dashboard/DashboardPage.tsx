@@ -1,20 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import {
-  Zap,
-  TrendingUp,
-  Play,
-  BarChart3,
-  Clock,
-  ChevronRight,
-  Target,
-  Star,
-  Brain,
-  ArrowUpRight,
-  Calendar,
-  Trophy,
-} from "lucide-react"
+import { Zap, TrendingUp, Play, BarChart3, Star, ArrowUpRight, Trophy } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -37,7 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import GlassCard from "@/components/shared/GlassCard"
-import ScoreRing from "@/components/shared/ScoreRing"
+// ScoreRing unused; removed to fix TS6133
 import PageTransition from "@/components/shared/PageTransition"
 import { DashboardSkeleton } from "@/components/shared/SkeletonLoaders"
 
@@ -167,7 +154,7 @@ function StatCard({ icon, label, value, progress, footer, color, index }: any) {
         </div>
         <h4 className="text-2xl font-black text-white">{value}</h4>
         <p className="text-sm text-slate-400 mb-4">{label}</p>
-        <Progress value={progress} className="h-1 bg-white/5" indicatorClassName="transition-all duration-1000" style={{'--progress-background': color} as any} />
+        <Progress value={progress} className="h-1 bg-white/5 transition-all duration-1000" style={{'--progress-background': color} as any} />
         <p className="text-[10px] text-slate-600 mt-2 uppercase tracking-widest font-bold">{footer}</p>
       </GlassCard>
     </motion.div>
@@ -259,7 +246,7 @@ function ActivityHeatmap() {
         <span className="text-slate-500 text-[10px]">Last 12 weeks</span>
       </div>
       <div className="flex flex-wrap gap-1">
-        {intensities.map((intensity, i) => (
+        {intensities.map((intensity: number, i: number) => (
           <UITooltip key={i}>
             <TooltipTrigger>
               <div 

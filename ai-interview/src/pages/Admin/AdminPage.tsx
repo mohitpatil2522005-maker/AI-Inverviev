@@ -551,7 +551,7 @@ export default function AdminPage() {
                             <Shield size={14} /> Permissions
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleSuspend(user.id)}
+                            onClick={() => handleSuspend(String(user.id))}
                             className="text-sm gap-2 text-red-400"
                           >
                             Suspend Account

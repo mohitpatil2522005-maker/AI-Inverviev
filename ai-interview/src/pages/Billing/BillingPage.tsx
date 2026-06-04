@@ -29,6 +29,18 @@ import GlassCard from "@/components/shared/GlassCard"
 import PageTransition from "@/components/shared/PageTransition"
 import RazorpayModal from "@/components/shared/RazorpayModal"
 
+interface Plan {
+  name: string
+  price: number
+  features: string[]
+  cta?: string
+  current?: boolean
+  highlight?: boolean
+  icon?: any
+  color?: string
+  desc?: string
+}
+
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
   visible: (i = 0) => ({
@@ -103,7 +115,7 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly"
   )
-  const [selectedPlan, setSelectedPlan] = useState<Record<string, unknown> | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null)
 
   return (
     <PageTransition>

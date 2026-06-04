@@ -753,7 +753,13 @@ function TestimonialsSection() {
 
 function PricingSection() {
   const [isYearly, setIsYearly] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<Record<string, unknown> | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string
+    price: number
+    features: string[]
+    cta?: string
+    highlight?: boolean
+  } | null>(null)
 
   return (
     <section id="pricing" className="py-24 px-6 max-w-6xl mx-auto">

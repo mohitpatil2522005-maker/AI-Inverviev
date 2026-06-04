@@ -6,7 +6,6 @@ import {
   MicOff,
   Send,
   MessageSquare,
-  Code2,
   Info,
   Bot,
   Lightbulb,

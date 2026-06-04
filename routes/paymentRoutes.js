@@ -73,7 +73,7 @@ router.post('/verify', verifyFirebaseToken, async (req, res) => {
 
     if (generated_signature === razorpay_signature) {
       // Payment is successful, update user
-      const user = await User.findOne({ firebaseUid: req.user.uid });
+      const user = await User.findOne({ authUid: req.user.uid });
       if (user) {
         if (pkg.plan === 'premium') {
           user.plan = 'premium';
@@ -81,8 +81,9 @@ router.post('/verify', verifyFirebaseToken, async (req, res) => {
           user.credits += pkg.credits;
         }
         await user.save();
+        return res.json({ success: true, message: 'Payment verified successfully', credits: user.credits, plan: user.plan });
       }
-      res.json({ success: true, message: 'Payment verified successfully', credits: user.credits, plan: user.plan });
+      return res.status(404).json({ success: false, error: 'User not found' });
     } else {
       res.status(400).json({ success: false, error: 'Payment verification failed' });
     }

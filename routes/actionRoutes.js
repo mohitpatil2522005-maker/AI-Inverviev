@@ -18,7 +18,7 @@ router.post('/consume', verifyFirebaseToken, async (req, res) => {
     }
 
     const cost = ACTION_COSTS[actionType];
-    const user = await User.findOne({ firebaseUid: req.user.uid });
+    const user = await User.findOne({ authUid: req.user.uid });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });

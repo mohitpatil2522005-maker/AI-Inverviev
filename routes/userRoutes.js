@@ -8,18 +8,18 @@ const router = express.Router();
 router.post('/sync', verifyFirebaseToken, async (req, res) => {
   try {
     const { uid, email } = req.user;
-    
-    let user = await User.findOne({ firebaseUid: uid });
-    
-    if (!user) {
-      // Create new user with default 1000 credits
-      user = new User({
-        firebaseUid: uid,
-        email: email || '',
-        credits: 1000,
-        plan: 'free',
-        lastCreditReset: new Date()
-      });
+
+      let user = await User.findOne({ authUid: uid });
+
+      if (!user) {
+        // Create new user with default 1000 credits
+        user = new User({
+          authUid: uid,
+          email: email || '',
+          credits: 1000,
+          plan: 'free',
+          lastCreditReset: new Date()
+        });
       await user.save();
     } else {
       // Check if it's been more than a month since last reset for free tier
@@ -42,7 +42,7 @@ router.post('/sync', verifyFirebaseToken, async (req, res) => {
 // Get user profile
 router.get('/me', verifyFirebaseToken, async (req, res) => {
   try {
-    const user = await User.findOne({ firebaseUid: req.user.uid });
+    const user = await User.findOne({ authUid: req.user.uid });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }

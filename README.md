@@ -105,6 +105,30 @@ When the user clicks "Start Interview":
    npm start
    ```
 
+## Deployment & Required Environment Variables
+
+Set the following environment variables for production (Vercel / Render):
+
+- `MONGODB_URI` — MongoDB connection string
+- `SUPABASE_URL` — Your Supabase project URL (https://your-project.supabase.co)
+- `SUPABASE_ANON_KEY` — Supabase anon/public key (client-side)
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (only if backend needs elevated privileges; keep secret)
+- `RAZORPAY_KEY_ID` — Razorpay key id (publishable / used by client)
+- `RAZORPAY_KEY_SECRET` — Razorpay key secret (server only)
+- `CORS_ORIGIN` — comma-separated allowed origins (e.g., `https://your-vercel-domain.vercel.app`)
+- `VITE_API_URL` — Frontend: API base URL (e.g., `https://api.yourapp.com/api`)
+
+Migration
+
+After deploying or before switching production, run the DB migration to rename `firebaseUid` to `authUid`:
+
+```bash
+# from repo root
+MONGODB_URI="<your mongo uri>" node scripts/migrate-rename-authuid.js
+```
+
+If you want to remove the legacy `firebaseUid` field after migration, set `REMOVE_OLD=true` in the environment when running the script.
+
 ## Project Structure
 
 ```
