@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { auth, googleProvider } from "@/lib/firebase"
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"
+import { supabase } from "@/lib/supabase"
+import api from "@/lib/api"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { Eye, EyeOff, Zap, Mail, Lock, ArrowRight, Chrome } from "lucide-react"
@@ -26,6 +26,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
+  const syncUser = async () => {
+    await api.post("/users/sync")
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -36,13 +40,16 @@ export default function LoginPage() {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        target.email.value,
-        target.password.value
-      )
-      const token = await userCredential.user.getIdToken()
-      localStorage.setItem("token", token)
+      const { error } = await supabase.auth.signInWithPassword({
+        email: target.email.value,
+        password: target.password.value,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      await syncUser()
       toast.success("Welcome back!")
       navigate("/dashboard")
     } catch (error: unknown) {
@@ -54,10 +61,16 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      const res = await signInWithPopup(auth, googleProvider)
-      const token = await res.user.getIdToken()
-      localStorage.setItem("token", token)
-      navigate("/dashboard")
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      })
+
+      if (error) {
+        throw error
+      }
     } catch {
       toast.error("Google login failed")
     }

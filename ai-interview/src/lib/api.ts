@@ -1,4 +1,5 @@
 import axios from "axios";
+import { supabase } from "./supabase";
 
 // Creates a centralized Axios instance
 const api = axios.create({
@@ -7,7 +8,8 @@ const api = axios.create({
 
 // Automatically inject JWT token into the headers of every request
 api.interceptors.request.use(async (config) => {
-  const token = localStorage.getItem("token");
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

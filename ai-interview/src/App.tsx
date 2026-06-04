@@ -17,6 +17,7 @@ import BillingPage from "@/pages/Billing/BillingPage"
 import SettingsPage from "@/pages/Settings/SettingsPage"
 import AdminPage from "@/pages/Admin/AdminPage"
 import AppLayout from "@/components/layout/AppLayout"
+import ProtectedLayout from "@/components/auth/ProtectedLayout"
 
 export default function App() {
   return (
@@ -29,18 +30,20 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
 
-            {/* App (protected-like layout) */}
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/resume" element={<ResumeAnalyzerPage />} />
-              <Route path="/interview/setup" element={<InterviewSetupPage />} />
-              <Route path="/interview/live" element={<LiveInterviewPage />} />
-              <Route path="/report" element={<FeedbackReportPage />} />
-              <Route path="/coach" element={<CareerCoachPage />} />
-              <Route path="/history" element={<InterviewHistoryPage />} />
-              <Route path="/billing" element={<BillingPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/admin" element={<AdminPage />} />
+            {/* App */}
+            <Route element={<ProtectedLayout />}>
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/resume" element={<ResumeAnalyzerPage />} />
+                <Route path="/interview/setup" element={<InterviewSetupPage />} />
+                <Route path="/interview/live" element={<LiveInterviewPage />} />
+                <Route path="/report" element={<FeedbackReportPage />} />
+                <Route path="/coach" element={<CareerCoachPage />} />
+                <Route path="/history" element={<InterviewHistoryPage />} />
+                <Route path="/billing" element={<BillingPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

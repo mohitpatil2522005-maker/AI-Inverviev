@@ -3,14 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const firebaseAdmin = require('firebase-admin');
-const serviceAccount = require('./firebase-service-account.json'); // You will need to create this file from Firebase console
 dotenv.config();
-
-// Initialize Firebase Admin
-firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(serviceAccount)
-});
 
 const app = express();
 
@@ -37,6 +30,14 @@ app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => {
   res.send('AI Interview SaaS API is running');
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Start server

@@ -21,12 +21,8 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { GradientOrbs } from "@/components/shared/AnimatedBackground"
 import GradientText from "@/components/shared/GradientText"
-import { auth, googleProvider } from "@/lib/firebase"
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  updateProfile,
-} from "firebase/auth"
+import { supabase } from "@/lib/supabase"
+import api from "@/lib/api"
 import { toast } from "sonner"
 
 const roles = [
@@ -65,6 +61,10 @@ export default function SignupPage() {
 
   const navigate = useNavigate()
 
+  const syncUser = async () => {
+    await api.post("/users/sync")
+  }
+
   const toggleType = (id: string) => {
     setSelectedTypes((prev) =>
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
@@ -74,26 +74,32 @@ export default function SignupPage() {
   const handleFinish = async () => {
     setLoading(true)
     try {
-      // Create user in Firebase
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
+      const { data, error } = await supabase.auth.signUp({
         email,
-        password
-      )
+        password,
+        options: {
+          data: {
+            full_name: name,
+            role: selectedRole,
+            experience_level: selectedLevel,
+            interview_types: selectedTypes,
+          },
+        },
+      })
 
-      // Update profile
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: name,
-        })
-
-        // Save token
-        const token = await userCredential.user.getIdToken()
-        localStorage.setItem("token", token)
+      if (error) {
+        throw error
       }
 
-      toast.success("Account created successfully!")
-      navigate("/dashboard")
+      if (data.session) {
+        await syncUser()
+        toast.success("Account created successfully!")
+        navigate("/dashboard")
+        return
+      }
+
+      toast.success("Account created. Check your email to verify it.")
+      navigate("/login")
     } catch (error: unknown) {
       toast.error((error as Error).message || "Failed to create account")
     } finally {
@@ -103,10 +109,16 @@ export default function SignupPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider)
-      const token = await result.user.getIdToken()
-      localStorage.setItem("token", token)
-      navigate("/dashboard")
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      })
+
+      if (error) {
+        throw error
+      }
     } catch {
       toast.error("Google sign-in failed")
     }
