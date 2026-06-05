@@ -1,37 +1,34 @@
-const verifySupabaseToken = async (req, res, next) => {
+const jwt = require('jsonwebtoken');
+
+const verifySupabaseToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
-  const token = authHeader.split(' ')[1];
+  const tokenParts = authHeader.split(' ');
+  const token = tokenParts.length === 2 ? tokenParts[1] : null;
 
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-    return res.status(500).json({ error: 'Supabase auth is not configured' });
+  if (!token || token === 'null' || token === 'undefined') {
+    return res.status(401).json({ error: 'Unauthorized: Invalid token format' });
+  }
+
+  if (!process.env.SUPABASE_JWT_SECRET) {
+    return res.status(500).json({ error: 'Supabase JWT secret is not configured' });
   }
 
   try {
-    const response = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: process.env.SUPABASE_ANON_KEY,
-      },
-    });
-
-    if (!response.ok) {
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
-
-    const user = await response.json();
+    const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+    
+    // Attach user info to request
     req.user = {
-      uid: user.id,
-      email: user.email,
-      user_metadata: user.user_metadata,
-      app_metadata: user.app_metadata,
+      uid: decoded.sub, // Supabase user id
+      email: decoded.email,
     };
+    
     next();
   } catch (error) {
-    console.error('Supabase token verification error:', error);
+    console.error('Supabase token verification error:', error.message);
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };

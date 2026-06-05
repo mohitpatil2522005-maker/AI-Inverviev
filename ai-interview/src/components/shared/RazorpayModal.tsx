@@ -37,8 +37,7 @@ export default function RazorpayModal({
     try {
       // 1. Create order on backend
       const { data: order } = await api.post("/payments/create-order", {
-        plan: plan.name,
-        amount: plan.price,
+        packageId: plan.name === "Pro" ? "premium_plan" : "credits_5000",
       })
 
       // 2. Open SDK
@@ -48,10 +47,13 @@ export default function RazorpayModal({
         currency: "INR",
         name: "InterviewAI",
         order_id: order.id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         handler: async (response: any) => {
             // 3. Verify on backend
-            const verifyRes = await api.post("/payments/verify", response)
+            const verifyRes = await api.post("/payments/verify", {
+              ...response,
+              packageId: plan.name === "Pro" ? "premium_plan" : "credits_5000",
+            })
             if (verifyRes.data.success) {
               setStep(2)
             }

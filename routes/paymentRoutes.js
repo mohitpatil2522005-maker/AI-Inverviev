@@ -2,7 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 const User = require('../models/User');
-const verifyFirebaseToken = require('../middleware/auth');
+const verifySupabaseToken = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -23,7 +23,7 @@ const PACKAGES = {
   'credits_5000': { amount: 499, credits: 5000, plan: 'free' },
 };
 
-router.post('/create-order', verifyFirebaseToken, async (req, res) => {
+router.post('/create-order', verifySupabaseToken, async (req, res) => {
   try {
     const { packageId } = req.body;
     const pkg = PACKAGES[packageId];
@@ -56,7 +56,7 @@ router.post('/create-order', verifyFirebaseToken, async (req, res) => {
   }
 });
 
-router.post('/verify', verifyFirebaseToken, async (req, res) => {
+router.post('/verify', verifySupabaseToken, async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, packageId } = req.body;
     const pkg = PACKAGES[packageId];

@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const verifyFirebaseToken = require('../middleware/auth');
+const verifySupabaseToken = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const ACTION_COSTS = {
   'interview': 300,
 };
 
-router.post('/consume', verifyFirebaseToken, async (req, res) => {
+router.post('/consume', verifySupabaseToken, async (req, res) => {
   try {
     const { actionType } = req.body;
     

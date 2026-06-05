@@ -69,7 +69,7 @@ const SignupPage = () => {
             disabled={loading}
             className="w-full py-3 sm:py-4 px-4 bg-white hover:bg-gray-100 text-gray-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-3" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5 mr-3" />
             Continue with Google
           </button>
         </div>

@@ -1,25 +1,25 @@
 const express = require('express');
 const User = require('../models/User');
-const verifyFirebaseToken = require('../middleware/auth');
+const verifySupabaseToken = require('../middleware/auth');
 
 const router = express.Router();
 
-// Fetch or create user (Sync from Firebase)
-router.post('/sync', verifyFirebaseToken, async (req, res) => {
+// Fetch or create user (Sync from Supabase)
+router.post('/sync', verifySupabaseToken, async (req, res) => {
   try {
     const { uid, email } = req.user;
 
-      let user = await User.findOne({ authUid: uid });
+    let user = await User.findOne({ authUid: uid });
 
-      if (!user) {
-        // Create new user with default 1000 credits
-        user = new User({
-          authUid: uid,
-          email: email || '',
-          credits: 1000,
-          plan: 'free',
-          lastCreditReset: new Date()
-        });
+    if (!user) {
+      // Create new user with default 1000 credits
+      user = new User({
+        authUid: uid,
+        email: email || '',
+        credits: 1000,
+        plan: 'free',
+        lastCreditReset: new Date()
+      });
       await user.save();
     } else {
       // Check if it's been more than a month since last reset for free tier
@@ -31,7 +31,7 @@ router.post('/sync', verifyFirebaseToken, async (req, res) => {
         await user.save();
       }
     }
-    
+
     res.json({ success: true, user });
   } catch (error) {
     console.error('Error syncing user:', error);
@@ -40,7 +40,7 @@ router.post('/sync', verifyFirebaseToken, async (req, res) => {
 });
 
 // Get user profile
-router.get('/me', verifyFirebaseToken, async (req, res) => {
+router.get('/me', verifySupabaseToken, async (req, res) => {
   try {
     const user = await User.findOne({ authUid: req.user.uid });
     if (!user) {

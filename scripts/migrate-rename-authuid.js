@@ -18,8 +18,8 @@ async function run() {
     let updated = 0;
     for (const u of users) {
       // if authUid already present skip
-      if (!u.authUid && u.firebaseUid) {
-        u.authUid = u.firebaseUid;
+      if (!u.authUid && u.oldIdentifier) {
+        u.authUid = u.oldIdentifier;
         await u.save();
         updated++;
       }
@@ -29,9 +29,9 @@ async function run() {
 
     const removeOld = process.env.REMOVE_OLD === 'true';
     if (removeOld) {
-      // remove firebaseUid field from all documents
-      const res = await User.updateMany({ firebaseUid: { $exists: true } }, { $unset: { firebaseUid: "" } });
-      console.log(`Removed firebaseUid field from ${res.modifiedCount} users.`);
+      // remove old identifier field from all documents
+      const res = await User.updateMany({ oldIdentifier: { $exists: true } }, { $unset: { oldIdentifier: "" } });
+      console.log(`Removed old identifier field from ${res.modifiedCount} users.`);
     }
 
     process.exit(0);

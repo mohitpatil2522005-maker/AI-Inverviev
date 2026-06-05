@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { auth, googleProvider } from '../lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { supabase } from '../lib/supabaseClient';
 import api from '../lib/api';
 
 interface AuthState {
@@ -27,8 +26,8 @@ export const syncUserWithBackend = createAsyncThunk(
     try {
       const response = await api.post('/users/sync');
       return response.data.user;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
@@ -39,8 +38,8 @@ export const fetchUserProfile = createAsyncThunk(
     try {
       const response = await api.get('/users/me');
       return response.data.user;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
@@ -49,13 +48,16 @@ export const loginWithEmail = createAsyncThunk(
   'auth/loginWithEmail',
   async ({ email, password }: { email: string; password: string }, { dispatch, rejectWithValue }) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      localStorage.setItem('token', token);
-      await dispatch(syncUserWithBackend());
-      return { user: userCredential.user, token };
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const token = data.session?.access_token;
+      if (token) localStorage.setItem('token', token);
+      if (data.session) {
+        await dispatch(syncUserWithBackend()).unwrap();
+      }
+      return { user: data.user, token: token || null };
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
@@ -64,28 +66,29 @@ export const signupWithEmail = createAsyncThunk(
   'auth/signupWithEmail',
   async ({ email, password }: { email: string; password: string }, { dispatch, rejectWithValue }) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      localStorage.setItem('token', token);
-      await dispatch(syncUserWithBackend());
-      return { user: userCredential.user, token };
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      const token = data.session?.access_token;
+      if (token) localStorage.setItem('token', token);
+      if (data.session) {
+        await dispatch(syncUserWithBackend()).unwrap();
+      }
+      return { user: data.user, token: token || null };
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
 
 export const loginWithGoogle = createAsyncThunk(
   'auth/loginWithGoogle',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
-      localStorage.setItem('token', token);
-      await dispatch(syncUserWithBackend());
-      return { user: result.user, token };
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      if (error) throw error;
+      return { user: null, token: null }; 
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
@@ -94,11 +97,12 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await signOut(auth);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       localStorage.removeItem('token');
       return;
-    } catch (err: any) {
-      return rejectWithValue(err.message);
+    } catch (err: unknown) {
+      return rejectWithValue(err instanceof Error ? err.message : String(err));
     }
   }
 );
@@ -134,7 +138,7 @@ const authSlice = createSlice({
       .addCase(loginWithEmail.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.token || null;
       })
       .addCase(loginWithEmail.rejected, (state, action) => {
         state.loading = false;
@@ -147,7 +151,7 @@ const authSlice = createSlice({
       .addCase(signupWithEmail.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.token || null;
       })
       .addCase(signupWithEmail.rejected, (state, action) => {
         state.loading = false;
@@ -157,10 +161,8 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+      .addCase(loginWithGoogle.fulfilled, (state) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
       })
       .addCase(loginWithGoogle.rejected, (state, action) => {
         state.loading = false;
